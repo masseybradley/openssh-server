@@ -29,16 +29,16 @@ Alternatively, build the image using `make` (default target: `make build`).
 Run the container service using `docker-compose`: `docker-compose up -d` or using the `docker` command line:
 ```
 docker run -d \
-    --restart always
-    --name openssh
-    --hostname openssh.example.com
-    -v ${HOME}/.ssh/id_rsa.pub:/home/ubuntu/.ssh/authorized_keys:ro
-    -v openssh:/etc/ssh
-    --cap-add SETUID
-    --cap-add SETGID
-    --cap-add CHOWN
-    --cap-add SYS_CHROOT
-    -p 2222:22
+    --restart always \
+    --name openssh \
+    --hostname openssh.example.com \
+    -v ${HOME}/.ssh/id_rsa.pub:/home/ubuntu/.ssh/authorized_keys:ro \
+    -v openssh:/etc/ssh \
+    --cap-add SETUID \
+    --cap-add SETGID \
+    --cap-add CHOWN \
+    --cap-add SYS_CHROOT \
+    -p 2222:22 \
     openssh-server
 ```
 
