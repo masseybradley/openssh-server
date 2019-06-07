@@ -38,6 +38,7 @@ docker run -d \
     --cap-add SETGID \
     --cap-add CHOWN \
     --cap-add SYS_CHROOT \
+    --log-driver journald \
     -p 2222:22 \
     openssh-server
 ```
