@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+  openssh:
+    image: 'openssh-server'
+    container_name: 'openssh'
+    hostname: 'openssh'
+    domainname: 'example.com'
+    restart: 'always'
+    volumes:
+    - 'openssh:/etc/ssh'
+    - '${PWD}/openssh-server/sshd_config:/etc/ssh/sshd_config:ro'
+    - '${HOME}/.ssh/id_rsa.pub:/home/ubuntu/.ssh/authorized_keys:ro'
+    cap_add:
+    - 'SYS_CHROOT'
+    - 'SETGID'
+    - 'SETUID'
+    - 'CHOWN'
+    ports:
+    - '2222:22'
+volumes:
+  openssh:
+
