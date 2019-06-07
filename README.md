@@ -6,8 +6,7 @@
 
 1. `docker`
 2. `docker-compose`
-
-Optional: `make`
+3. (optional) `make`
 
 ## how?
 
