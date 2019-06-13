@@ -1,0 +1,6 @@
+{
+  "log-driver": "journald",
+  "live-restore": true,
+  "experimental": true,
+  "features": { "buildkit": true }
+}
