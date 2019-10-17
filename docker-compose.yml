@@ -9,6 +9,7 @@ services:
     volumes:
     - 'openssh:/etc/ssh'
     - '${PWD}/openssh-server/sshd_config:/etc/ssh/sshd_config:ro'
+    - '${PWD}/openssh-server/ssh_config:/etc/ssh/ssh_config:ro'
     - '${HOME}/.ssh/id_rsa.pub:/home/ubuntu/.ssh/authorized_keys:ro'
     cap_add:
     - 'SYS_CHROOT'

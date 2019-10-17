@@ -102,7 +102,7 @@ PrintMotd no
 #UseLogin no
 #PermitUserEnvironment no
 #Compression delayed
-#ClientAliveInterval 0
+ClientAliveInterval 420
 #ClientAliveCountMax 3
 #UseDNS no
 #PidFile /var/run/sshd.pid
