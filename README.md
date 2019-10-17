@@ -22,7 +22,7 @@ You should extend this image with your `authorized_keys` configuration file or b
 
 Build the `openssh-server` using `docker` with buildkit enabled: `DOCKER_BUILDKIT=1 docker build -f openssh-server/Dockerfile -t openssh-server openssh-server`
 
-Alternatively, build the image using `make` (default target: `make build`): `DOCKER_BUILDKIT=1 make`
+Alternatively, build the image using `make` (default target: `make build`): `make`
 
 ### runtime
 

@@ -1,0 +1,15 @@
+apiVersion: skaffold/v1beta13
+kind: Config
+build:
+  artifacts:
+  - image: openssh-server
+    context: openssh-server
+    docker:
+      cacheFrom:
+      - 'ubuntu:18.04'
+  local:
+    push: false
+    useBuildkit: true
+  tagPolicy:
+    envTemplate:
+      template: '{{.IMAGE_NAME}}'
