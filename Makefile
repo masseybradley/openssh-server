@@ -11,4 +11,4 @@ build:
 		-w /workspace/source \
 		--entrypoint skaffold \
 		--network host \
-		gcr.io/k8s-skaffold/skaffold:028a21bc1a4edff29e1ddae0015089aa43ac812b build
+		gcr.io/k8s-skaffold/skaffold:v1.1.0 build
