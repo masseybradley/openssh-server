@@ -1,0 +1,163 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openssh-server.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "openssh-server.name" . }}
+    helm.sh/chart: {{ include "openssh-server.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  sshd_config: |-
+    # User-supplied sshd configuration:
+    # The strategy used for options in the default sshd_config shipped with
+    # OpenSSH is to specify options with their default value where
+    # possible, but leave them commented.  Uncommented options override the
+    # default value.
+
+    {{- if .Values.sshd.port }}
+    Port {{ .Values.sshd.port }}
+    {{- else }}
+    #Port 22
+    {{- end }}
+    {{- if .Values.sshd.addressFamily }}
+    AddressFamily {{ .Values.sshd.addressFamily }}
+    {{- else }}
+    #AddressFamily any
+    {{- end }}
+    {{- if .Values.sshd.ipv4.enabled }}
+    {{- if .Values.sshd.ipv4.listenAddress }}
+    ListenAddress {{ .Values.sshd.ipv4.listenAddress }}
+    {{- else }}
+    #ListenAddress 0.0.0.0
+    {{- end }}
+    {{- end }}
+    {{- if .Values.sshd.ipv6.enabled }}
+    {{- if .Values.sshd.ipv6.listenAddress }}
+    ListenAddress {{ .Values.sshd.ipv6.listenAddress }}
+    {{- else }}
+    #ListenAddress ::
+    {{- end }}
+    {{- end }}
+
+    {{- if .Values.sshd.kexAlgorithms }}
+    KexAlgorithms {{ .Values.sshd.kexAlgorithms }}
+    {{- else }}
+    KexAlgorithms diffie-hellman-group-exchange-sha256
+    {{- end }}
+    {{- if .Values.sshd.ciphers }}
+    Ciphers {{ .Values.sshd.ciphers }}
+    {{- else }}
+    Ciphers aes256-cbc,aes256-ctr
+    {{- end }}
+    {{- if .Values.sshd.messageAuthenticationCodes }}
+    MACs {{ .Values.sshd.messageAuthenticationCodes }}
+    {{- else }}
+    MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-256
+    {{- end }}
+
+    {{- if .Values.sshd.hostKeys }}
+    {{- range .Values.sshd.hostKeys }}
+    Hostkey {{ . }}
+    {{- end }}
+    {{- else }}
+    #HostKey /etc/ssh/ssh_host_rsa_key
+    #HostKey /etc/ssh/ssh_host_ecdsa_key
+    #HostKey /etc/ssh/ssh_host_ed25519_key
+    {{- end }}
+
+    # Ciphers and keying
+    {{- if .Values.sshd.reKeyLimit }}
+    ReKeyLimit {{ .Values.sshd.reKeyLimit }}
+    {{- else }}
+    #RekeyLimit default none
+    {{- end }}
+
+    # Logging
+    {{- if .Values.sshd.sysLogFacility }}
+    SysLogFacility {{ .Values.sshd.sysLogFacility }}
+    {{- else }}
+    SyslogFacility AUTHPRIV
+    {{- end }}
+    {{- if .Values.sshd.logLevel }}
+    LogLevel {{ .Values.sshd.logLevel }}
+    {{- else }}
+    LogLevel INFO
+    {{- end }}
+
+    # Authentication:
+
+    {{- if .Values.sshd.loginGraceTime }}
+    LoginGraceTime {{ .Values.sshd.loginGraceTime }}
+    {{- else }}
+    #LoginGraceTime 2m
+    {{- end }}
+    {{- if .Values.sshd.permitRootLogin }}
+    PermitRootLogin {{ .Values.sshd.permitRootLogin }}
+    {{- else }}
+    PermitRootLogin prohibit-password
+    {{- end }}
+    {{- if .Values.sshd.strictModes }}
+    StrictModes {{ .Values.sshd.strictModes }}
+    {{- else }}
+    StrictModes yes
+    {{- end }}
+    {{- if .Values.sshd.maxAuthTries }}
+    MaxAuthTries {{ .Values.sshd.maxAuthTries }}
+    {{- else }}
+    #MaxAuthTries 6
+    {{- end }}
+    {{- if .Values.sshd.maxSessions }}
+    MaxSessions {{ .Values.sshd.maxSessions }}
+    {{- else }}
+    #MaxSessions 10
+    {{- end }}
+
+    {{- if .Values.sshd.pubKeyAuthentication }}
+    PubKeyAuthentication {{ .Values.sshd.pubKeyAuthentication }}
+    {{- else }}
+    PubkeyAuthentication yes
+    {{- end }}
+
+    {{- if .Values.sshd.authorizedKeysFile }}
+    AuthorizedKeysFile {{ .Values.sshd.authorizedKeysFile }}
+    {{- else }}
+    # Expect .ssh/authorized_keys2 to be disregarded by default in future.
+    #AuthorizedKeysFile	.ssh/authorized_keys .ssh/authorized_keys2
+    {{- end }}
+
+    {{- if .Values.sshd.authorizedPrincipalsFile }}
+    AuthorizedPrincipalsFile {{ .Values.sshd.authorizedPrincipalsFile }}
+    {{- else }}
+    #AuthorizedPrincipalsFile none
+    {{- end }}
+
+    {{- if .Values.sshd.authorizedKeysCommand }}
+    AuthorizedKeysCommand {{ .Values.sshd.authorizedKeysCommand }}
+    {{- else }}
+    #AuthorizedKeysCommand none
+    {{- end }}
+    {{- if .Values.sshd.authorizedKeysCommandUser }}
+    AuthorizedKeysCommandUser {{ .Values.sshd.authorizedKeysCommandUser }}
+    {{- else }}
+    #AuthorizedKeysCommandUser nobody
+    {{- end }}
+
+    # For this to work you will also need host keys in /etc/ssh/ssh_known_hosts
+    {{- if .Values.sshd.hostBasedAuthentication }}
+    HostbasedAuthentication {{ .Values.sshd.hostBasedAuthentication }}
+    {{- else }}
+    #HostbasedAuthentication no
+    {{- end }}
+    # Change to yes if you don't trust ~/.ssh/known_hosts for
+    # HostbasedAuthentication
+    {{- if .Values.sshd.ignoreUserKnownHosts }}
+    IgnoreUserKnownHosts {{ .Values.sshd.ignoreUserKnownHosts }}
+    {{- else }}
+    #IgnoreUserKnownHosts no
+    {{- end }}
+  authorized_keys:
+{{- if .Values.authorized_keys }}
+    # User-supplied authorized_keys configuration:
+{{ tpl .Values.authorized_keys . | indent 4 }}
+{{ end }}

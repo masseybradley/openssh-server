@@ -1,0 +1,81 @@
+# Default values for openssh-server.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: nginx
+  tag: stable
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+sshd:
+  port: 22
+  addressFamily: any
+  ipv4:
+    enabled: true
+    listenAddress: 0.0.0.0
+  ipv6:
+    enabled: true
+    listenAddress: "::"
+  kexAlgorithms: diffie-hellman-group-exchange-sha256
+  ciphers: aes256-cbc,aes256-ctr
+  messageAuthenticationCodes: hmac-sha2-256-etm@openssh.com,hmac-sha2-256
+  hostKeys:
+  - /etc/ssh/ssh_host_rsa_key
+  - /etc/ssh/ssh_host_ecdsa_key
+  - /etc/ssh/ssh_host_ed25519_key
+  reKeyLimit: default none
+  sysLogFacility: AUTHPRIV
+  logLevel: INFO
+  loginGraceTime: 2m
+  permitRootLogin: prohibit-password
+  strictModes: yes
+  maxAuthTries: 6
+  maxSessions: 10
+  pubKeyAuthentication: yes
+  authorizedKeysFile: .ssh/authorized_keys .ssh/authorized_keys2
+  authorizedPrincipalsFile: none
+  authorizedKeysCommand: none
+  authorizedKeysCommandUser: nobody
+  hostBasedAuthentication: no
+  ignoreUserKnownHosts: no

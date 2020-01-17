@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "properties": {
+    "image": {
+      "description": "Container image",
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "nameOverride": {
+      "description": "Service name override",
+      "type": "string"
+    },
+    "fullnameOverride": {
+      "description": "Full name override",
+      "type": "string"
+    },
+    "port": {
+      "description": "Port",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "protocol": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "protocol",
+    "port"
+  ],
+  "title": "Values",
+  "type": "object"
+}

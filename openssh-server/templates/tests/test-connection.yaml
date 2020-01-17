@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "openssh-server.fullname" . }}-test-connection"
+  labels:
+    app.kubernetes.io/name: {{ include "openssh-server.name" . }}
+    helm.sh/chart: {{ include "openssh-server.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args:  ['{{ include "openssh-server.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never
