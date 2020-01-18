@@ -54,10 +54,10 @@ sshd:
   # addressFamily: any
   ipv4:
     enabled: true
-    listenAddress: 0.0.0.0
+    # listenAddress: 0.0.0.0
   ipv6:
     enabled: true
-    listenAddress: "::"
+    # listenAddress: "::"
   # kexAlgorithms: diffie-hellman-group-exchange-sha256
   # ciphers: aes256-cbc,aes256-ctr
   # messageAuthenticationCodes: hmac-sha2-256-etm@openssh.com,hmac-sha2-256
@@ -80,8 +80,69 @@ sshd:
   # authorizedKeysCommandUser: nobody
   # hostBasedAuthentication: no
   # ignoreUserKnownHosts: no
-  passwordAuthentication:
+  # @TODO: add rhosts mount
+  ignoreRhosts: true
+  passwordAuthentication: false
+  # permitEmptyPasswords: false
+  challengeResponseAuthentication: false
+  kerberosAuthentication:
     enabled: false
+    # orLocalPassword: true
+    # ticketCleanup: true
+    # getAFSToken: false
+  gssApiAuthentication:
+    enabled: false
+    # cleanupCredentials: true
+    # strictAcceptorCheck: true
+    # keyExchange: false
+  usePam: true
+  allowAgentForwarding: true
+  allowTcpForwarding: true
+  # gatewayPorts: false
+  # x11Forwarding: true
+  # x11DispalyOffset: 10
+  # x11UseLocalhost: true
+  # permitTTY: true
+  # @TODO: add motd mount to deployment
+  printMotd: false
+  # printLastLog: true
+  # tcpKeepAlive: true
+  # useLogin: false
+  # permitUserEnvironment: false
+  # compression: delayed
+  # clientAliveInterval: 0
+  # clientAliveMaxCount: 3
+  # useDNS: false
+  # pidFile: /var/run/sshd.pid
+  # maxStartups: 10:30:100
+  # permitTunnel: false
+  # chrootDirectory: none
+  # versionAddendum: none
+  # @TODO: enable banner mount
+  # banner: none
+  acceptEnv:
+    enabled: true
+    variables:
+    - LANG
+    - LC_*
+  subsystems:
+    enabled: true
+    systems:
+    - name: sftp
+      value: /usr/lib/openssh/sftp-server
+  matchUser:
+    enabled: false
+    # users:
+    # - name: anoncvs
+    #   settings:
+    #   - name: X11Forwarding
+    #     value: no
+    #   - name: AllowTcpForwarding
+    #     value: no
+    #   - name: PermitTTY
+    #     value: no
+    #   - name: ForceCommand
+    #     value: "cvs server"
 
 authorized_keys: []
 # - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDEnSMccDhxsv1VthTbPg2r4V0wSESHqx0KGaD87LhL1qwRlsA10ALfGU0YH28gPsAmZEFAPYD3DxVeIaxBruLoKrCVOZkB32f2IWoOUMRR9fvNbOZzGJo4RaW/xpHF3UrlTNgsOvP2bEso7y7765mwh1hOX9iFS/2Np3VOVhWbeqQCo7KWR34oHdZrB3cLnT6vbZTTMRZrmzOmCaK3hUiMOt4P2eKMI2OofXOFp52bE/448nDEoa/ZV3KaxZonUKvc2YlvQ1zvAdD6j7P49mRYsvXqK2GufBvsfKk4Uc+FXIfpxSjVPjTE83+afJ8ci8KaFSJeRYlMoX6Y4vfhj0w3 bmassey@hacklabs-2"
