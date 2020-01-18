@@ -5,16 +5,17 @@
 replicaCount: 1
 
 image:
-  repository: nginx
-  tag: stable
+  repository: build.yields.io/openssh-server
+  tag: latest
   pullPolicy: IfNotPresent
+  pullSecrets: []
 
 nameOverride: ""
 fullnameOverride: ""
 
 service:
   type: ClusterIP
-  port: 80
+  port: 22
 
 ingress:
   enabled: false
@@ -49,33 +50,38 @@ tolerations: []
 affinity: {}
 
 sshd:
-  port: 22
-  addressFamily: any
+  # port: 22
+  # addressFamily: any
   ipv4:
     enabled: true
     listenAddress: 0.0.0.0
   ipv6:
     enabled: true
     listenAddress: "::"
-  kexAlgorithms: diffie-hellman-group-exchange-sha256
-  ciphers: aes256-cbc,aes256-ctr
-  messageAuthenticationCodes: hmac-sha2-256-etm@openssh.com,hmac-sha2-256
-  hostKeys:
-  - /etc/ssh/ssh_host_rsa_key
-  - /etc/ssh/ssh_host_ecdsa_key
-  - /etc/ssh/ssh_host_ed25519_key
-  reKeyLimit: default none
-  sysLogFacility: AUTHPRIV
-  logLevel: INFO
-  loginGraceTime: 2m
-  permitRootLogin: prohibit-password
-  strictModes: yes
-  maxAuthTries: 6
-  maxSessions: 10
-  pubKeyAuthentication: yes
-  authorizedKeysFile: .ssh/authorized_keys .ssh/authorized_keys2
-  authorizedPrincipalsFile: none
-  authorizedKeysCommand: none
-  authorizedKeysCommandUser: nobody
-  hostBasedAuthentication: no
-  ignoreUserKnownHosts: no
+  # kexAlgorithms: diffie-hellman-group-exchange-sha256
+  # ciphers: aes256-cbc,aes256-ctr
+  # messageAuthenticationCodes: hmac-sha2-256-etm@openssh.com,hmac-sha2-256
+  # hostKeys:
+  # - /etc/ssh/ssh_host_rsa_key
+  # - /etc/ssh/ssh_host_ecdsa_key
+  # - /etc/ssh/ssh_host_ed25519_key
+  # reKeyLimit: default none
+  # sysLogFacility: AUTHPRIV
+  # logLevel: INFO
+  # loginGraceTime: 2m
+  # permitRootLogin: prohibit-password
+  # strictModes: yes
+  # maxAuthTries: 6
+  # maxSessions: 10
+  # pubKeyAuthentication: yes
+  # authorizedKeysFile: .ssh/authorized_keys .ssh/authorized_keys2
+  # authorizedPrincipalsFile: none
+  # authorizedKeysCommand: none
+  # authorizedKeysCommandUser: nobody
+  # hostBasedAuthentication: no
+  # ignoreUserKnownHosts: no
+  passwordAuthentication:
+    enabled: false
+
+authorized_keys: []
+# - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDEnSMccDhxsv1VthTbPg2r4V0wSESHqx0KGaD87LhL1qwRlsA10ALfGU0YH28gPsAmZEFAPYD3DxVeIaxBruLoKrCVOZkB32f2IWoOUMRR9fvNbOZzGJo4RaW/xpHF3UrlTNgsOvP2bEso7y7765mwh1hOX9iFS/2Np3VOVhWbeqQCo7KWR34oHdZrB3cLnT6vbZTTMRZrmzOmCaK3hUiMOt4P2eKMI2OofXOFp52bE/448nDEoa/ZV3KaxZonUKvc2YlvQ1zvAdD6j7P49mRYsvXqK2GufBvsfKk4Uc+FXIfpxSjVPjTE83+afJ8ci8KaFSJeRYlMoX6Y4vfhj0w3 bmassey@hacklabs-2"

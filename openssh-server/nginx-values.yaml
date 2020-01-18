@@ -1,0 +1,13 @@
+controller:
+  name: nginx-ingress
+  nginxDebug: true
+  logLevel: 1
+  config:
+    name: nginx-config
+    entries:
+      error-log-level: debug
+  service:
+    customPorts:
+    - name: ssh
+      port: 22
+      targetPort: 22

@@ -19,3 +19,21 @@
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl port-forward $POD_NAME 8080:80
 {{- end }}
+2. Expose the openssh-server externally
+cat <<EOF | kubectl apply -f -
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nginx-config
+  namespace: kube-system
+data:
+    stream-snippets: |-
+      upstream openssh {
+        server {{ include "openssh-server.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:22;
+      }
+      server {
+        listen 22;
+        proxy_pass openssh;
+        ssl_preread on;
+      }
+EOF

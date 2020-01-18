@@ -19,33 +19,82 @@ spec:
         app.kubernetes.io/name: {{ include "openssh-server.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if .Values.authorized_keys }}
+      initContainers:
+      - name: alpine
+        image: alpine
+        command: ["/bin/sh"]
+        # args: ["-c", "sleep 10 && echo Sleep expired > /dev/termination-log"]
+        # args: ["-c", "cp /tmp/authorized_keys /home/ubuntu/.ssh/authorized_keys && echo keys copied > /dev/termination-log"]
+        args: ["-c", "cp /tmp/authorized_keys /home/ubuntu/.ssh/authorized_keys && chown -R 1000:1000 /home/ubuntu/.ssh && chmod 600 /home/ubuntu/.ssh/authorized_keys && chmod 700 /home/ubuntu/.ssh && echo keys copied > /dev/termination-log"]
+        imagePullPolicy: IfNotPresent
+        resources: {}
+        volumeMounts:
+          - mountPath: /tmp/authorized_keys
+            name: {{ include "openssh-server.fullname" . }}
+            subPath: authorized_keys
+            readOnly: false
+          - mountPath: /home/ubuntu/.ssh
+            name: keys
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
+            - name: ssh
+              {{- if .Values.sshd.port }}
+              containerPort: {{ .Values.sshd.port }}
+              {{- else }}
+              containerPort: 22
+              {{- end }}
               protocol: TCP
           livenessProbe:
-            httpGet:
-              path: /
-              port: http
+            tcpSocket:
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
           readinessProbe:
-            httpGet:
-              path: /
-              port: http
+            tcpSocket:
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /home/ubuntu/.ssh
+              name: keys
+              readOnly: true
+              mode: 700
+            - mountPath: /etc/ssh/sshd_config
+              subPath: sshd_config
+              name: {{ include "openssh-server.fullname" . }}
+              readOnly: true
+      volumes:
+        - name: {{ include "openssh-server.fullname" . }}
+          configMap:
+            name: {{ include "openssh-server.fullname" . }}
+            items:
+              - key: authorized_keys
+                path: authorized_keys
+              - key: sshd_config
+                path: sshd_config
+            defaultMode: 0600
+        - name: keys
+          emptyDir: {}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-    {{- with .Values.affinity }}
+      {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
-    {{- end }}
-    {{- with .Values.tolerations }}
+      {{- end }}
+      {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
-    {{- end }}
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecret }}
+      {{- end }}
