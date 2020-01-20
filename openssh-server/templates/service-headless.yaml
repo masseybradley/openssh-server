@@ -10,7 +10,7 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: {{ .Values.sshd.port }}
       targetPort: ssh
       protocol: TCP
       name: ssh

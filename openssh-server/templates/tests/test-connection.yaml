@@ -14,5 +14,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args:  ['{{ include "openssh-server.fullname" . }}:{{ .Values.service.port }}']
+      args:  ['{{ include "openssh-server.fullname" . }}:{{ .Values.sshd.port }}']
   restartPolicy: Never
