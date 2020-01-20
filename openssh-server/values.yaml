@@ -51,6 +51,7 @@ affinity: {}
 
 sshd:
   # port: 22
+  # protocol: 2
   # addressFamily: any
   ipv4:
     enabled: true

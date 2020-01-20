@@ -24,6 +24,11 @@ data:
     {{- else }}
     Port 22
     {{- end }}
+    {{- if .Values.sshd.protocol }}
+    Protocol {{ .Values.sshd.protocol }}
+    {{- else }}
+    Protocol 2
+    {{- end }}
     {{- if .Values.sshd.addressFamily }}
     AddressFamily {{ .Values.sshd.addressFamily }}
     {{- else }}
