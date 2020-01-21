@@ -59,60 +59,93 @@ sshd:
   ipv6:
     enabled: true
     # listenAddress: "::"
-  # kexAlgorithms: diffie-hellman-group-exchange-sha256
-  # ciphers: aes256-cbc,aes256-ctr
-  # messageAuthenticationCodes: hmac-sha2-256-etm@openssh.com,hmac-sha2-256
+  # kexAlgorithms: curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha1
+  # ciphers: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com
+  # messageAuthenticationCodes: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1
   # hostKeys:
   # - /etc/ssh/ssh_host_rsa_key
   # - /etc/ssh/ssh_host_ecdsa_key
   # - /etc/ssh/ssh_host_ed25519_key
+  # hostKeyAgent: none
+  # hostKeyAlgorithms: none
   # reKeyLimit: default none
-  # sysLogFacility: AUTHPRIV
+  # sysLogFacility: AUTH
   # logLevel: INFO
   # loginGraceTime: 2m
-  # permitRootLogin: prohibit-password
+  permitRootLogin: no
   # strictModes: yes
   # maxAuthTries: 6
   # maxSessions: 10
+  # authenticationMethods: "any"
   # pubKeyAuthentication: yes
+  # pubKeyAcceptedKeyTypes: ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-ed25519,ssh-rsa
+  # revokedKeys: none
+  # authorizedKeysCommand: none
+  # authorizedKeysCommandUser: none
   # authorizedKeysFile: .ssh/authorized_keys .ssh/authorized_keys2
-  # authorizedPrincipalsFile: none
   # authorizedKeysCommand: none
   # authorizedKeysCommandUser: nobody
-  # hostBasedAuthentication: no
-  # ignoreUserKnownHosts: no
+  #
+  # @TODO: make sure these are set in the configmap
+  # authorizedPrincipalsFile: none
+  # authorizedPrincipalsCommand: none
+  # authorizedPrincipalsCommandUser: nobody
+  #
+  # hostbasedAcceptedKeyTypes: ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-ed25519,ssh-rsa
+  # hostbasedAuthentication: false
+  # hostbasedUsesNameFromPacketOnly: false
+  # hostCertificate: none
+  # trustedUserCaKeys: none
+  ignoreUserKnownHosts: true
   # @TODO: add rhosts mount
   ignoreRhosts: true
+  # IPQoS: lowdelay throughput
+  # kdbInteractiveAuthentication: true
   passwordAuthentication: false
   # permitEmptyPasswords: false
+  # permitOpen: any
   challengeResponseAuthentication: false
-  kerberosAuthentication:
-    enabled: false
-    # orLocalPassword: true
-    # ticketCleanup: true
-    # getAFSToken: false
-  gssApiAuthentication:
-    enabled: false
-    # cleanupCredentials: true
-    # strictAcceptorCheck: true
-    # keyExchange: false
-  usePam: true
-  allowAgentForwarding: true
-  allowTcpForwarding: true
+  # kerberosAuthentication: false
+  # kerberosGetAFSToken: false
+  # kerberosOrLocalPassword: true
+  # kerberosTicketCleanup: true
+  # gssApiAuthentication: false
+  # gssApiKeyExchange: false
+  gssApiCleanupCredentials: true
+  gssApiStrictAcceptorCheck: true
+  # gssApiStoreCredentialsOnRekey: false
+  # usePam: false
+  # allowAgentForwarding: true
+  # allowTcpForwarding: true
+  # allowStreamLocalForwarding: all
+  # streamLocalBindMask: 0177
+  # streamLocalBindUnlink: no
+  # allowGroups: []
+  # - ubuntu
+  # allowUsers: []
+  # - ubuntu
+  # denyGroups:
+  # - ubuntu
+  # disableForwarding: false
+  # exposeAuthInfo: false
+  # forceCommand: none
   # gatewayPorts: false
   # x11Forwarding: true
   # x11DispalyOffset: 10
   # x11UseLocalhost: true
+  # xAuthLocation: /usr/bin/xauth
   # permitTTY: true
+  # permitUserRC: true
   # @TODO: add motd mount to deployment
-  printMotd: false
+  # printMotd: true
   # printLastLog: true
   # tcpKeepAlive: true
   # useLogin: false
   # permitUserEnvironment: false
-  # compression: delayed
+  # compression: yes
+  # debianBanner: yes
+  # clientAliveCountMax: 3
   # clientAliveInterval: 0
-  # clientAliveMaxCount: 3
   # useDNS: false
   # pidFile: /var/run/sshd.pid
   # maxStartups: 10:30:100

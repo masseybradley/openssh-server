@@ -9,20 +9,8 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 data:
   sshd_config: |-
-    #    $OpenBSD: sshd_config,v 1.101 2017/03/14 07:19:07 djm Exp $
-
-    # This is the sshd server system-wide configuration file.  See
-    # sshd_config(5) for more information.
-
-    # This sshd was compiled with PATH=/usr/bin:/bin:/usr/sbin:/sbin
-
-    # The strategy used for options in the default sshd_config shipped with
-    # this chart is to specify options with their default value where
-    # possible.
     {{ if .Values.sshd.port }}
     Port {{ .Values.sshd.port }}
-    {{- else }}
-    Port 22
     {{- end }}
     {{- if .Values.sshd.protocol }}
     Protocol {{ .Values.sshd.protocol }}
@@ -48,51 +36,39 @@ data:
     ListenAddress ::
     {{- end }}
     {{- end }}
-    {{ if .Values.sshd.hostKeys }}
-    {{- range .Values.sshd.hostKeys }}
-    Hostkey {{ . }}
-    {{- end }}
-    {{- else }}
-    HostKey /etc/ssh/ssh_host_rsa_key
-    HostKey /etc/ssh/ssh_host_ecdsa_key
-    HostKey /etc/ssh/ssh_host_ed25519_key
-    {{- end }}
-
     # Ciphers and keying
     {{- if .Values.sshd.reKeyLimit }}
     ReKeyLimit {{ .Values.sshd.reKeyLimit }}
-    {{ else }}
-    RekeyLimit default none
     {{- end }}
 
     # Logging
     {{- if .Values.sshd.sysLogFacility }}
     SysLogFacility {{ .Values.sshd.sysLogFacility }}
-    {{- else }}
-    SyslogFacility AUTH
     {{- end }}
+
     {{- if .Values.sshd.logLevel }}
     LogLevel {{ .Values.sshd.logLevel }}
-    {{- else }}
-    LogLevel INFO
     {{- end }}
 
     # Authentication:
-    {{ if .Values.sshd.loginGraceTime }}
+    {{ if .Values.sshd.authenticationMethods }}
+    AuthenticationMethods {{ .Values.sshd.authenticationMethods }}
+    {{- end }}
+    {{- if .Values.sshd.loginGraceTime }}
     LoginGraceTime {{ .Values.sshd.loginGraceTime }}
-    {{- else }}
-    LoginGraceTime 2m
     {{- end }}
     {{- if .Values.sshd.permitRootLogin }}
     PermitRootLogin {{ .Values.sshd.permitRootLogin }}
     {{- else }}
     PermitRootLogin prohibit-password
     {{- end }}
+
     {{- if .Values.sshd.strictModes }}
-    StrictModes {{ .Values.sshd.strictModes }}
-    {{- else }}
     StrictModes yes
+    {{- else }}
+    StrictModes no
     {{- end }}
+
     {{- if .Values.sshd.maxAuthTries }}
     MaxAuthTries {{ .Values.sshd.maxAuthTries }}
     {{- else }}
@@ -100,24 +76,29 @@ data:
     {{- end }}
     {{- if .Values.sshd.maxSessions }}
     MaxSessions {{ .Values.sshd.maxSessions }}
-    {{- else }}
-    MaxSessions 10
     {{- end }}
     {{ if .Values.sshd.pubKeyAuthentication }}
-    PubKeyAuthentication {{ .Values.sshd.pubKeyAuthentication }}
+    PubKeyAuthentication yes
     {{- else }}
-    PubkeyAuthentication yes
+    PubkeyAuthentication no
     {{- end }}
-    {{ if .Values.sshd.authorizedKeysFile }}
+    # @TODO: add krl configmap mount
+    {{- if .Values.sshd.revokeKeys }}
+    RevokedKeys {{ .Values.sshd.revokedKeys }}
+    {{- end }}
+    {{- if .Values.sshd.authorizedKeysFile }}
     AuthorizedKeysFile {{ .Values.sshd.authorizedKeysFile }}
-    {{- else }}
     # Expect .ssh/authorized_keys2 to be disregarded by default in future.
-    AuthorizedKeysFile    .ssh/authorized_keys .ssh/authorized_keys2
     {{- end }}
+    # @TODO: mount authorized principals file
     {{ if .Values.sshd.authorizedPrincipalsFile }}
     AuthorizedPrincipalsFile {{ .Values.sshd.authorizedPrincipalsFile }}
-    {{- else }}
-    AuthorizedPrincipalsFile none
+    {{- end }}
+    {{- if .Values.sshd.authorizedPrincipalsCommand }}
+    AuthorizedPrincipalsCommand {{ .Values.sshd.authorizedPrincipalsFile }}
+    {{- end }}
+    {{- if .Values.sshd.authorizedPrincipalsCommandUser }}
+    AuthorizedPrincipalsCommandUser {{ .Values.sshd.authorizedPrincipalsCommandUser }}
     {{- end }}
     {{ if .Values.sshd.authorizedKeysCommand }}
     AuthorizedKeysCommand {{ .Values.sshd.authorizedKeysCommand }}
@@ -126,45 +107,72 @@ data:
     {{- end }}
     {{- if .Values.sshd.authorizedKeysCommandUser }}
     AuthorizedKeysCommandUser {{ .Values.sshd.authorizedKeysCommandUser }}
-    {{- else }}
-    AuthorizedKeysCommandUser nobody
     {{- end }}
     {{ if .Values.sshd.kexAlgorithms }}
     KexAlgorithms {{ .Values.sshd.kexAlgorithms }}
-    {{- else }}
-    KexAlgorithms diffie-hellman-group-exchange-sha256
     {{- end }}
     {{- if .Values.sshd.ciphers }}
     Ciphers {{ .Values.sshd.ciphers }}
-    {{- else }}
-    Ciphers aes256-cbc,aes256-ctr
     {{- end }}
     {{- if .Values.sshd.messageAuthenticationCodes }}
     MACs {{ .Values.sshd.messageAuthenticationCodes }}
-    {{- else }}
-    MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-256
     {{- end }}
 
+    {{- if .Values.sshd.hostbasedAcceptedKeyTypes }}
+    HostbasedAccptedKeyTypes {{ .Values.sshd.hostbasedAcceptedKeyTypes }}
+    {{- end }}
     # For this to work you will also need host keys in /etc/ssh/ssh_known_hosts
-    {{- if .Values.sshd.hostBasedAuthentication }}
-    HostbasedAuthentication {{ .Values.sshd.hostBasedAuthentication }}
-    {{- else }}
-    HostbasedAuthentication no
+    {{- if .Values.sshd.hostbasedAuthentication }}
+    HostbasedAuthentication yes
+    {{- end }}
+    {{- if .Values.sshd.hostbasedNameFromPacketOnly }}
+    HostbasedUsesNameFromPacketOnly yes
+    {{- end }}
+    # @TODO: allow mounting host certificates and keys
+    # @TODO: configmap to generate certs
+    {{- if .Values.sshd.hostCertificate }}
+    HostCertificate {{ .Values.sshd.hostCertificate }}
+    {{- end }}
+    # @TODO: configmap and volume mount
+    {{- if .Values.sshd.trustedUserCaKeys }}
+    TrustedUserCAKeys {{ .Values.sshd.trustedUserCaKeys }}
+    {{- end }}
+    {{ if .Values.sshd.hostKeys }}
+    {{- range .Values.sshd.hostKeys }}
+    Hostkey {{ . }}
+    {{- end }}
+    {{- end }}
+    # @TODO: allow setting SSH_AUTH_SOCK in the environ
+    {{- if .Values.sshd.hostKeyAgent }}
+    HostKeyAgent {{ .Values.sshd.hostKeyAgent }}
+    {{- end }}
+    {{- if .Values.sshd.hostKeyAlgorithms }}
+    HostKeyAlgorithms {{ .Values.sshd.hostKeyAlgorithms }}
     {{- end }}
     # Change to yes if you don't trust ~/.ssh/known_hosts for
     # HostbasedAuthentication
     {{- if .Values.sshd.ignoreUserKnownHosts }}
-    IgnoreUserKnownHosts {{ .Values.sshd.ignoreUserKnownHosts }}
+    IgnoreUserKnownHosts yes
     {{- else }}
     IgnoreUserKnownHosts no
     {{- end }}
-    # Don't read the user's ~/.rhosts and ~/.shosts files
+    # @TODO: allow mounting `~/.rhosts` and `~/.shosts`
     {{- if .Values.sshd.ignoreRhosts }}
     IgnoreRhosts yes
     {{- else }}
     IgnoreRhosts no
     {{- end }}
 
+    # @TODO: make sure this can accept 1 or 2 parameters
+    {{- if .Values.sshd.IPQoS }}
+    IPQoS {{ .Values.sshd.IPQoS }}
+    {{- end }}
+
+    {{- if .Values.sshd.kdbInteractiveAuthentication }}
+    KdbInteractiveAuthentication yes
+    {{- else }}
+    KdbInteractiveAuthentication no
+    {{- end }}
     # To disable tunneled clear text passwords, change to no here!
     {{- if .Values.sshd.passwordAuthentication }}
     PasswordAuthentication yes
@@ -173,8 +181,12 @@ data:
     {{- end }}
     {{- if .Values.sshd.permitEmptyPasswords }}
     PermitEmptyPasswords yes
+    {{- end }}
+
+    {{- if .Values.sshd.permitOpen }}
+    PermitOpen {{ .Values.sshd.permitOpen }}
     {{- else }}
-    PermitEmptyPasswords no
+    PermitOpen any
     {{- end }}
 
     # Change to yes to enable challenge-response passwords (beware issues with
@@ -186,47 +198,41 @@ data:
     {{- end }}
 
     # Kerberos options
-    {{- if .Values.sshd.kerberosAuthentication.enabled }}
+    {{- if .Values.sshd.kerberosAuthentication }}
     KerberosAuthentication yes
-    {{- if .Values.sshd.kerberosAuthentication.orLocalPassword }}
-    KerberosOrLocalPasswd yes
     {{- else }}
-    KerberosOrLocalPasswd no
+    KerberosAuthentication no
     {{- end }}
-    {{- if .Values.sshd.kerberosAuthentication.ticketCleanup }}
-    KerberosTicketCleanup yes
-    {{- else }}
-    KerberosTicketCleanup no
-    {{- end }}
-    {{- if .Values.sshd.kerberosAuthentication.getAFSToken }}
+    {{- if .Values.sshd.kerberosGetAFSToken }}
     KerberosGetAFSToken yes
     {{- else }}
     KerberosGetAFSToken no
     {{- end }}
+    {{- if .Values.sshd.kerberosOrLocalPassword }}
+    KerberosOrLocalPasswd yes
     {{- else }}
-    KerberosAuthentication no
+    KerberosOrLocalPasswd no
     {{- end }}
-
-    # GSSAPI options
-    {{- if .Values.sshd.gssApiAuthentication.enabled }}
-    GSSAPIAuthentication yes
-    {{- if .Values.sshd.gssApiAuthentication.cleanupCredentials }}
-    GSSAPICleanupCredentials yes
+    {{- if .Values.sshd.kerberosTicketCleanup }}
+    KerberosTicketCleanup yes
     {{- else }}
+    KerberosTicketCleanup no
+    {{- end }}
+    # GSSAPI options
+    {{- if .Values.sshd.gssApiAuthentication }}
+    GSSAPIAuthentication yes
+    {{- end }}
+    {{- if .Values.sshd.gssApiKeyExchange }}
+    GSSAPIKeyExchange yes
+    {{- end }}
+    {{- if not .Values.sshd.gssApiCleanupCredentials }}
     GSSAPICleanupCredentials no
     {{- end }}
-    {{- if .Values.sshd.gssApiAuthentication.strictAcceptorCheck }}
-    GSSAPIStrictAcceptorCheck yes
-    {{- else }}
+    {{- if not .Values.sshd.gssApiStrictAcceptorCheck }}
     GSSAPIStrictAcceptorCheck no
     {{- end }}
-    {{- if .Values.sshd.gssApiAuthentication.keyExchange }}
-    GSSAPIKeyExchange yes
-    {{- else }}
-    GSSAPIKeyExchange no
-    {{- end }}
-    {{- else }}
-    GSSAPIAuthentication no
+    {{- if .Values.sshd.gssApiStoreCredentialsOnRekey }}
+    GSSAPIStoreCredentialsOnRekey yes
     {{- end }}
 
     # Set this to 'yes' to enable PAM authentication, account processing,
@@ -250,35 +256,77 @@ data:
     AllowAgentForwarding no
     {{- end }}
     {{- if .Values.sshd.allowTcpForwarding }}
-    AllowTcpForwarding yes
-    {{- else }}
-    AllowTcpForwarding no
+    AllowTcpForwarding {{ .Values.sshd.allowTcpForwarding }}
+    {{- end }}
+    {{- if .Values.sshd.allowStreamLocalForwarding }}
+    AllowStreamLocalForwarding {{ .Values.sshd.streamLocalForwarding }}
+    {{- end }}
+    {{- if .Values.sshd.streamLocalBindMask }}
+    StreamLocalBindMask {{ .Values.sshd.streamLocalBindMask }}
+    {{- end }}
+    {{- if .Values.sshd.streamLocalBindUnlink }}
+    StreamLocalBindUnlink yes
+    {{- end }}
+    # @TODO: make sure the list is correctly formatted for openssh-server
+    {{- if .Values.sshd.allowGroups }}
+    {{- range .Values.sshd.allowGroups }}
+    AllowGroups {{ . }}
+    {{- end }}
+    {{- end }}
+    # @TODO: make sure this range is correct
+    {{- if .Values.sshd.allowUsers }}
+    {{- range .Values.sshd.allowUsers }}
+    AllowUsers {{ . }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.sshd.denyGroups }}
+    {{- range .Values.sshd.denyGroups }}
+    DenyGroups {{ . }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.sshd.diableForwarding }}
+    DisableForwarding yes
+    {{- end }}
+    {{- if .Values.sshd.exposeAuthInfo }}
+    ExposeAuthInfo yes
+    {{- end }}
+    {{- if .Values.sshd.fingerprintHash }}
+    FingerprintHash {{ .Values.sshd.fingerprintHash }}
+    {{- end }}
+    {{- if .Values.sshd.forceCommand }}
+    ForceCommand {{ .Values.sshd.forceCommand }}
     {{- end }}
     {{- if .Values.sshd.gatewayPorts }}
     GatewayPorts yes
-    {{- else }}
-    GatewayPorts no
+    {{- end }}
+    {{- if .Values.sshd.disableForwarding }}
+    DisableForwarding yes
     {{- end }}
     {{- if .Values.sshd.x11Forwarding }}
     X11Forwarding yes
-    {{- else }}
-    X11Forwarding no
     {{- end }}
     {{- if .Values.sshd.x11DisplayOffset }}
-    X11DisplayOffset {{ .Values.sshd.x11DisplayOffset.offset }}
-    {{- else }}
-    X11DisplayOffset 10
+    X11DisplayOffset {{ .Values.sshd.x11DisplayOffset }}
     {{- end }}
     {{- if .Values.sshd.x11UseLocalHost }}
     X11UseLocalhost yes
     {{- else }}
     X11UseLocalhost no
     {{- end }}
-    {{- if .Values.sshd.permitTTY }}
-    PermitTTY yes
-    {{- else }}
+    # @TODO: can build custom image with alt xauth
+    {{- if .Values.sshd.xAuthLocation }}
+    XAuthLocation {{ .Values.sshd.xAuthLocation }}
+    {{- end }}
+
+    {{- if not .Values.sshd.permitTTY }}
     PermitTTY no
     {{- end }}
+
+    {{- if not .Values.sshd.permitUserRC }}
+    PermitUserRC no
+    {{- end }}
+
+    # @TODO: mount motd configmap template to /etc/motd
     {{- if .Values.sshd.printMotd }}
     PrintMotd yes
     {{- else }}
@@ -296,30 +344,23 @@ data:
     {{- end }}
     {{- if .Values.sshd.useLogin }}
     UseLogin yes
-    {{- else }}
-    UseLogin no
     {{- end }}
+
     {{- if .Values.sshd.permitUserEnvironment }}
     PermitUserEnvironment yes
-    {{- else }}
-    PermitUserEnvironment no
     {{- end }}
 
     {{- if .Values.sshd.compression }}
     Compression {{ .Values.sshd.compression }}
-    {{- else }}
-    Compression delayed
     {{- end }}
-
-    {{- if .Values.sshd.clientAliveInterval }}
-    ClientAliveInterval {{ .Values.sshd.clientAliveInterval }}
-    {{- else }}
-    ClientAliveInterval 0
+    {{- if .Values.sshd.debianBanner }}
+    DebianBanner {{ .Values.sshd.debianBanner }}
     {{- end }}
     {{- if .Values.sshd.clientAliveCountMax }}
     ClientAliveCountMax {{ .Values.sshd.clientAliveCountMax }}
-    {{- else }}
-    ClientAliveCountMax 3
+    {{- end }}
+    {{- if .Values.sshd.clientAliveInterval }}
+    ClientAliveInterval {{ .Values.sshd.clientAliveInterval }}
     {{- end }}
     {{- if .Values.sshd.useDNS }}
     UseDNS yes
@@ -333,23 +374,20 @@ data:
     {{- end }}
     {{- if .Values.sshd.maxStartups }}
     MaxStartups {{ .Values.sshd.maxStartups }}
-    {{- else }}
-    MaxStartups 10:30:100
     {{- end }}
+
+    # @TODO: handle "yes", "point-to-point", "ethernet" or "no" options
     {{- if .Values.sshd.permitTunnel }}
     PermitTunnel yes
     {{- else }}
     PermitTunnel no
     {{- end }}
+
     {{- if .Values.sshd.chrootDirectory }}
     ChrootDirectory {{ .Values.sshd.chrootDirectory }}
-    {{- else }}
-    ChrootDirectory none
     {{- end }}
     {{- if .Values.sshd.versionAddendum }}
     VersionAddendum {{ .Values.sshd.versionAddendum }}
-    {{- else }}
-    VersionAddendum none
     {{- end }}
 
     # no default banner path
@@ -377,6 +415,7 @@ data:
     Subsystem none
     {{- end }}
 
+    # @TODO: update to include criteria User, Group, Host, LocalAddress, LocalPort and Address
     # Example of overriding settings on a per-user basis
     {{- if .Values.sshd.matchUser.enabled }}
     {{- range .Values.sshd.matchUser.users }}
