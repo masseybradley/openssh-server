@@ -12,9 +12,8 @@ RUN apt-get update && \
     apt-get install -y \
         openssh-server \
         netcat \
-        locales \
-        libpam-google-authenticator && \
-    rm -rf /var/lib/apt/cache
+        locales && \
+    rm -rf /var/lib/apt/cache/*
 
 RUN dpkg-reconfigure openssh-server
 

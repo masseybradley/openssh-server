@@ -4,20 +4,18 @@ services:
     image: 'openssh-server'
     container_name: 'openssh'
     hostname: 'openssh'
-    domainname: 'example.com'
+    domainname: 'lazybit.ch'
     restart: 'always'
     volumes:
     - 'openssh:/etc/ssh'
-    - '${PWD}/openssh-server/sshd_config:/etc/ssh/sshd_config:ro'
-    - '${PWD}/openssh-server/ssh_config:/etc/ssh/ssh_config:ro'
-    - '${HOME}/.ssh/id_rsa.pub:/home/ubuntu/.ssh/authorized_keys:ro'
+    - './etc/ssh/sshd_config:/etc/ssh/sshd_config:ro'
+    - './etc/ssh/ssh_config:/etc/ssh/ssh_config:ro'
     cap_add:
     - 'SYS_CHROOT'
     - 'SETGID'
     - 'SETUID'
     - 'CHOWN'
     ports:
-    - '2222:22'
+    - '22:22'
 volumes:
   openssh:
-
