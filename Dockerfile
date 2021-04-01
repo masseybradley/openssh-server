@@ -24,4 +24,7 @@ RUN mkdir /home/ubuntu/.ssh && \
     chmod 700 /home/ubuntu/.ssh && \
     chown -R ubuntu:ubuntu /home/ubuntu/.ssh
 
-ENTRYPOINT ["/usr/sbin/sshd", "-D", "-e"]
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["/usr/sbin/sshd", "-D", "-e"]

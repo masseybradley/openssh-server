@@ -6,6 +6,8 @@ services:
     hostname: 'openssh'
     domainname: 'lazybit.ch'
     restart: 'always'
+    depends_on:
+    - 'rsyslog'
     volumes:
     - '${HOME}/.ssh/id_rsa.pub:/home/ubuntu/.ssh/authorized_keys:ro'
     - 'openssh:/etc/ssh'
@@ -21,6 +23,8 @@ services:
     - '22:22'
   rsyslog:
     image: 'rsyslog'
+    container_name: 'rsyslog'
+    restart: 'always'
     volumes:
     - './etc/rsyslog.conf:/etc/rsyslog.conf:ro'
     - './etc/rsyslog.d/60-output.conf:/etc/rsyslog.d/60-output.conf:ro'
