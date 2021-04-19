@@ -10,9 +10,8 @@ VOLUME ["/var/run/sshd"]
 
 RUN apt-get update && \
     apt-get install -y \
-        openssh-server \
-        netcat \
-        locales && \
+        locales \
+        openssh-server && \
     rm -rf /var/lib/apt/cache/*
 
 RUN dpkg-reconfigure openssh-server
